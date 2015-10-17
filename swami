@@ -1,0 +1,97 @@
+#!/usr/bin/python
+# encoding: utf-8
+
+#A rewrite of the E control panel in Python and Elementary for Moksha
+
+import os
+import importlib
+
+from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
+from efl import elementary
+from efl.elementary.window import StandardWindow
+from efl.elementary.icon import Icon
+from efl.elementary.naviframe import Naviframe
+from efl.elementary.box import Box
+from efl.elementary.button import Button
+
+EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
+EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
+FILL_BOTH = EVAS_HINT_FILL, EVAS_HINT_FILL
+FILL_HORIZ = EVAS_HINT_FILL, 0.5
+ALIGN_CENTER = 0.5, 0.5
+
+class MainWin(StandardWindow):
+    def __init__(self):
+        # create the main window
+        StandardWindow.__init__(self, "swami", "Swami Control Panel",
+                                autodel=True, size=(600, 400))
+        self.callback_delete_request_add(lambda o: elementary.exit())
+
+        icon = Icon(self)
+        icon.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
+        icon.size_hint_align_set(EVAS_HINT_FILL, EVAS_HINT_FILL)
+        icon.standard_set('preferences-system')
+        icon.show()
+        self.icon_object_set(icon.object_get())
+        
+        self.nf = Naviframe(self)
+        self.nf.size_hint_weight = EXPAND_BOTH
+        self.nf.size_hint_align = FILL_BOTH
+        self.nf.show()
+        
+        self.resize_object_add(self.nf)
+        
+        self.modules = {}
+        self.moduleBox = Box(self)
+        self.moduleBox.size_hint_weight = EXPAND_BOTH
+        self.moduleBox.size_hint_align = FILL_BOTH
+        
+        self.loadModules()
+
+        mainBox = Box(self)
+        mainBox.size_hint_weight = EXPAND_BOTH
+        mainBox.pack_end(self.nf)
+        mainBox.show()
+        
+        self.resize_object_add(mainBox)
+
+        self.returnMain()
+
+        # show the window
+        self.show()
+    
+    def loadModules(self):
+        modulesToLoad = []
+        currentDir = os.listdir(".")
+        for thing in currentDir:
+            if os.path.isdir(thing) and thing[:6] == "swami_":
+                modulesToLoad.append(thing)
+        
+        #print modulesToLoad
+        for m in modulesToLoad:
+            imported = importlib.import_module(m)
+            self.modules[imported] = imported.SwamiModule(self)
+        
+            button = Button(self)
+            button.content_set(self.modules[imported].icon)
+            button.text = self.modules[imported].name
+            button.size_hint_weight = EXPAND_BOTH
+            button.callback_clicked_add(self.modulePressed, self.modules[imported])
+            button.show()
+            
+            self.moduleBox.pack_end(button)
+    
+    def modulePressed(self, btn, module):
+        self.nf.item_simple_push(module)
+    
+    def returnMain(self):
+        self.nf.item_simple_push(self.moduleBox)
+
+if __name__ == "__main__":
+    elementary.init()
+
+    app = MainWin()
+
+    elementary.run()
+
+    elementary.shutdown()
