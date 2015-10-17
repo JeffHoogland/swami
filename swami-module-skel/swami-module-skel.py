@@ -19,27 +19,21 @@ class SwamiModule(Box):
         
         self.name = "Name"
         
-        self.icon = Icon(self)
-        self.icon.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
-        self.icon.size_hint_align_set(EVAS_HINT_FILL, EVAS_HINT_FILL)
+        self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         #Use FDO icons -> http://standards.freedesktop.org/icon-naming-spec/latest/ar01s04.html
         self.icon.standard_set('icon-name')
         self.icon.show()
         
-        self.mainBox = Box(self)
-        self.mainBox.size_hint_weight = EXPAND_BOTH
+        self.mainBox = Box(self, size_hint_weight = EXPAND_BOTH)
         self.mainBox.show()
         
-        bkicon = Icon(self)
-        bkicon.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
-        bkicon.size_hint_align_set(EVAS_HINT_FILL, EVAS_HINT_FILL)
+        bkicon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         bkicon.standard_set('go-previous')
         bkicon.show()
         
-        buttonReturn = Button(self)
+        buttonReturn = Button(self, size_hint_weight = EXPAND_HORIZ)
         buttonReturn.text = "Back"
         buttonReturn.content_set(bkicon)
-        buttonReturn.size_hint_weight = EXPAND_HORIZ
         buttonReturn.callback_clicked_add(self.returnPressed)
         buttonReturn.show()
         
