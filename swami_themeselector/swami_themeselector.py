@@ -5,6 +5,7 @@ from efl import elementary
 from efl.elementary.button import Button
 from efl.elementary.box import Box
 from efl.elementary.icon import Icon
+from efl import edje
 from efl.edje import Edje
 
 from elmextensions import FileSelector
@@ -31,10 +32,11 @@ class SwamiModule(Box):
         self.fs = fs = FileSelector(self.parent, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         fs.setMode("Open")
         fs.show()
-        
+
+        #need to do this to shutdown threading for the file selector
         self.parent.callback_delete_request_add(self.shutDownFS)
         
-        fs.callback_activated_add(self.themeSelected)
+        fs.callback_activated_add(self.fileSelected)
         
         self.mainBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         self.mainBox.pack_end(fs)
@@ -53,9 +55,21 @@ class SwamiModule(Box):
         self.pack_end(self.mainBox)
         self.pack_end(buttonReturn)
     
-    def themeSelected(self, fs, ourFile):
-        print ourFile
+    def fileSelected(self, fs, ourFile):
+        if ourFile[-4:] == ".edj":
+            self.importTheme(ourFile)
+        else:
+            print "Please select a theme file"
+    
+    def importTheme(self, themeFile):
+        edjeObj = Edje(self.parent.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        edjeObj.file_set(themeFile, "moksha/preview")
+        #Accessing global data
+        print edje.file_data_get(themeFile, "gtk-theme")
         
+        edjeObj.show()
+        self.mainBox.pack_end(edjeObj)
+    
     def returnPressed(self, btn):
         self.parent.returnMain()
     

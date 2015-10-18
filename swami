@@ -82,9 +82,11 @@ class MainWin(StandardWindow):
             self.moduleBox.pack_end(button)
     
     def modulePressed(self, btn, module):
+        self.title = "Swami Control Panel - %s"%module.name
         self.nf.item_simple_push(module)
     
     def returnMain(self):
+        self.title = "Swami Control Panel"
         self.nf.item_simple_push(self.moduleBox)
 
 if __name__ == "__main__":
