@@ -46,9 +46,13 @@ class SwamiModule(Box):
         self.themeList.go()
         self.themeList.show()
         
-        self.themeBox = themeBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        self.previewBox = previewBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        previewBox.show()
+        
+        themeBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         themeBox.horizontal_set(True)
         themeBox.pack_end(self.themeList)
+        themeBox.pack_end(self.previewBox)
         themeBox.show()
         
         self.fs = fs = FileSelector(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
@@ -104,14 +108,20 @@ class SwamiModule(Box):
         edjeObj.show()
         
         listItem = self.themeList.item_append("%s"%themeFile, edjeObj, callback=self.themeSelected)
+        listItem.data["filePath"] = "%s/%s"%(ourPath, themeFile)
     
     def themeSelected(self, obj, item=None):
-        edjeObj = item.object_get()
+        self.previewBox.clear()
         
-        if self.currentPreview:
-            self.themeBox.unpack(self.currentPreview)
+        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        filePath = item.data["filePath"]
+        try:
+            edjeObj.file_set(filePath, "moksha/preview")
+        except:
+            edjeObj.file_set(filePath, "e/desktop/background")
+        edjeObj.show()
         
-        self.themeBox.pack_end(edjeObj)
+        self.previewBox.pack_end(edjeObj)
         self.currentPreview = edjeObj
     
     def fileSelected(self, fs, ourFile):
