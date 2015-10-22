@@ -27,29 +27,22 @@ class MainWin(StandardWindow):
                                 autodel=True, size=(600, 400))
         self.callback_delete_request_add(lambda o: elementary.exit())
 
-        icon = Icon(self)
-        icon.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
-        icon.size_hint_align_set(EVAS_HINT_FILL, EVAS_HINT_FILL)
+        icon = Icon(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         icon.standard_set('preferences-system')
         icon.show()
         self.icon_object_set(icon.object_get())
         
-        self.nf = Naviframe(self)
-        self.nf.size_hint_weight = EXPAND_BOTH
-        self.nf.size_hint_align = FILL_BOTH
+        self.nf = Naviframe(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         self.nf.show()
         
         self.resize_object_add(self.nf)
         
         self.modules = {}
-        self.moduleBox = Box(self)
-        self.moduleBox.size_hint_weight = EXPAND_BOTH
-        self.moduleBox.size_hint_align = FILL_BOTH
+        self.moduleBox = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         
         self.loadModules()
 
-        mainBox = Box(self)
-        mainBox.size_hint_weight = EXPAND_BOTH
+        mainBox = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         mainBox.pack_end(self.nf)
         mainBox.show()
         
@@ -72,10 +65,9 @@ class MainWin(StandardWindow):
             imported = importlib.import_module(m)
             self.modules[imported] = imported.SwamiModule(self)
         
-            button = Button(self)
+            button = Button(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
             button.content_set(self.modules[imported].icon)
             button.text = self.modules[imported].name
-            button.size_hint_weight = EXPAND_BOTH
             button.callback_clicked_add(self.modulePressed, self.modules[imported])
             button.show()
             

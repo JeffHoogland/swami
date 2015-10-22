@@ -1,10 +1,11 @@
 #Moksha Theme selector module for the Swami Control Panel
 
 import os
+import webbrowser
+import shutil
 
-from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
+from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL, EVAS_ASPECT_CONTROL_BOTH
 from efl import elementary
-from efl.elementary.button import Button
 from efl.elementary.box import Box
 from efl.elementary.icon import Icon
 from efl import edje
@@ -14,6 +15,7 @@ from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_XZ_CENTER_AXIS, \
 from efl.elementary.list import List, ELM_LIST_LIMIT, ELM_LIST_COMPRESS
 
 from elmextensions import FileSelector
+from elmextensions import StandardButton
 
 EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
 EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
@@ -37,6 +39,8 @@ class SwamiModule(Box):
         self.icon.standard_set('preferences-desktop-theme')
         self.icon.show()
         
+        self.foundThemes = []
+        
         self.currentPreview = None
         
         self.themeList = List(self, size_hint_weight=(0.25, 1.0), 
@@ -47,6 +51,7 @@ class SwamiModule(Box):
         self.themeList.show()
         
         self.previewBox = previewBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        previewBox.size_hint_aspect_set(EVAS_ASPECT_CONTROL_BOTH, 16, 9)
         previewBox.show()
         
         themeBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
@@ -72,24 +77,45 @@ class SwamiModule(Box):
         self.flip.part_content_set("back", self.fs)
         self.flip.show()
         
+        fs.callback_cancel_add(lambda o: self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS))
+        
         #self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
         
         self.mainBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         self.mainBox.pack_end(self.flip)
         self.mainBox.show()
         
-        bkicon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-        bkicon.standard_set('go-previous')
-        bkicon.show()
+        buttonBox = Box(self, size_hint_weight = EXPAND_HORIZ, size_hint_align = FILL_BOTH)
+        buttonBox.horizontal = True
         
-        buttonReturn = Button(self, size_hint_weight=EXPAND_HORIZ)
-        buttonReturn.text = "Back"
-        buttonReturn.content_set(bkicon)
-        buttonReturn.callback_clicked_add(self.returnPressed)
+        buttonApply = StandardButton(self, "Apply Selected", "ok", self.applyPressed)
+        buttonApply.show()
+        
+        buttonWeb = StandardButton(self, "Get Themes", "applications-internet", self.webPressed)
+        buttonWeb.show()
+        
+        #buttonGTK = StandardButton(self, "GTK Theme", "preferences-desktop-gnome", self.gtkPressed)
+        #buttonGTK.show()
+        
+        #buttonElm = StandardButton(self, "Elementary Theme", "", self.elmPressed)
+        #buttonElm.show()
+        
+        buttonImport = StandardButton(self, "Import Theme", "preferences-desktop-theme", self.importPressed)
+        buttonImport.show()
+        
+        buttonReturn = StandardButton(self, "Back", "go-previous", self.returnPressed)
         buttonReturn.show()
         
+        buttonBox.pack_end(buttonApply)
+        buttonBox.pack_end(buttonWeb)
+        #buttonBox.pack_end(buttonGTK)
+        #buttonBox.pack_end(buttonElm)
+        buttonBox.pack_end(buttonImport)
+        buttonBox.pack_end(buttonReturn)
+        buttonBox.show()
+        
         self.pack_end(self.mainBox)
-        self.pack_end(buttonReturn)
+        self.pack_end(buttonBox)
     
     def populateThemes(self):
         for ourPath in ThemePaths:
@@ -98,7 +124,8 @@ class SwamiModule(Box):
                     self.addTheme(themeFile, ourPath)
     
     def addTheme(self, themeFile, ourPath):
-        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, 
+                        size_hint_align=FILL_BOTH)
         
         try:
             edjeObj.file_set("%s/%s"%(ourPath, themeFile), "moksha/preview")
@@ -109,43 +136,58 @@ class SwamiModule(Box):
         
         listItem = self.themeList.item_append("%s"%themeFile, edjeObj, callback=self.themeSelected)
         listItem.data["filePath"] = "%s/%s"%(ourPath, themeFile)
+        
+        self.foundThemes.append("%s/%s"%(ourPath, themeFile))
     
     def themeSelected(self, obj, item=None):
         self.previewBox.clear()
         
-        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH )
         filePath = item.data["filePath"]
         try:
             edjeObj.file_set(filePath, "moksha/preview")
         except:
             edjeObj.file_set(filePath, "e/desktop/background")
+        
+        #edjeObj.size_hint_aspect_set(EVAS_ASPECT_CONTROL_BOTH, 16, 9)
         edjeObj.show()
         
         self.previewBox.pack_end(edjeObj)
         self.currentPreview = edjeObj
     
     def fileSelected(self, fs, ourFile):
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
         if ourFile[-4:] == ".edj":
-            self.importTheme(ourFile)
+            
+            shutil.copy2(ourFile, "%s/.e/e/themes"%os.path.expanduser("~"))
+            ourPath, themeFile = os.path.split(ourFile)
+            self.addTheme(themeFile, "%s/.e/e/themes"%os.path.expanduser("~"))
         else:
             print "Please select a theme file"
     
-    def importTheme(self, themeFile):
-        edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-        try:
-            edjeObj.file_set(themeFile, "moksha/preview")
-        except:
-            edjeObj.file_set(themeFile, "e/desktop/background")
-        #Accessing global data
-        print edje.file_data_get(themeFile, "gtk-theme")
-        
-        edjeObj.show()
-        self.mainBox.pack_end(edjeObj)
-        
-        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
-    
     def returnPressed(self, btn):
         self.parent.returnMain()
+    
+    def gtkPressed(self, btn):
+        pass
+    
+    def webPressed(self, btn):
+        webbrowser.open("http://www.bodhilinux.com/softwaregroup/themes/")
+        try:
+            os.wait()
+        except:
+            pass
+    
+    def elmPressed(self, btn):
+        pass
+    
+    def importPressed(self, btn):
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+    
+    def applyPressed(self, btn):
+        #Accessing global data
+        #print edje.file_data_get(themeFile, "gtk-theme")
+        pass
     
     def shutDownFS(self, arg):
         self.fs.shutdown()
