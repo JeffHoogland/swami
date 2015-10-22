@@ -8,6 +8,7 @@ from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL, EVAS_ASPECT_CONTROL_BOTH
 from efl import elementary
 from efl.elementary.box import Box
 from efl.elementary.icon import Icon
+
 from efl import edje
 from efl.edje import Edje
 from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_XZ_CENTER_AXIS, \
@@ -16,6 +17,7 @@ from efl.elementary.list import List, ELM_LIST_LIMIT, ELM_LIST_COMPRESS
 
 from elmextensions import FileSelector
 from elmextensions import StandardButton
+from elmextensions import StandardPopup
 
 EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
 EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
@@ -157,19 +159,16 @@ class SwamiModule(Box):
     
     def fileSelected(self, fs, ourFile):
         self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+        ourPath, themeFile = os.path.split(ourFile)
         if ourFile[-4:] == ".edj":
-            
             shutil.copy2(ourFile, "%s/.e/e/themes"%os.path.expanduser("~"))
-            ourPath, themeFile = os.path.split(ourFile)
             self.addTheme(themeFile, "%s/.e/e/themes"%os.path.expanduser("~"))
         else:
-            print "Please select a theme file"
+            errorPop = StandardPopup(self, "%s does not appear to be a valid theme file."%themeFile, 'dialog-warning')
+            errorPop.show()
     
     def returnPressed(self, btn):
         self.parent.returnMain()
-    
-    def gtkPressed(self, btn):
-        pass
     
     def webPressed(self, btn):
         webbrowser.open("http://www.bodhilinux.com/softwaregroup/themes/")
@@ -177,6 +176,9 @@ class SwamiModule(Box):
             os.wait()
         except:
             pass
+    
+    def gtkPressed(self, btn):
+        pass
     
     def elmPressed(self, btn):
         pass
