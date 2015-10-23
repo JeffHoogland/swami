@@ -11,6 +11,7 @@ from efl import elementary
 from efl.elementary.button import Button
 from efl.elementary.box import Box
 from efl.elementary.icon import Icon
+from efl.elementary.layout import Layout
 
 from efl import edje
 from efl.edje import Edje
@@ -94,9 +95,18 @@ class SwamiModule(Box):
         buttonBox = Box(self, size_hint_weight = EXPAND_HORIZ, size_hint_align = FILL_BOTH)
         buttonBox.horizontal = True
         
+        buttonApply = StandardButton(self, "Apply Selected", "ok", self.applyPressed)
+        buttonApply.show()
+        
+        buttonImport = StandardButton(self, "Import Wallpaper", "wallpaper", self.importPressed)
+        buttonImport.show()
+        
         buttonReturn = StandardButton(self, "Back", "go-previous", self.returnPressed)
         buttonReturn.show()
         
+        buttonBox.pack_end(buttonApply)
+        #buttonBox.pack_end(buttonWeb)
+        buttonBox.pack_end(buttonImport)
         buttonBox.pack_end(buttonReturn)
         buttonBox.show()
         
@@ -126,10 +136,11 @@ class SwamiModule(Box):
     def wallSelected(self, obj, item):
         self.previewBox.clear()
         
-        edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, 
-                size_hint_align=FILL_BOTH)
-        filePath = item.data["filePath"]
+        #edjeObj = Layout(self.previewBox, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
+        edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        
+        filePath = item.data["filePath"]
         edjeObj.file_set(filePath, "e/desktop/background")
         edjeObj.show()
         
@@ -142,6 +153,12 @@ class SwamiModule(Box):
     
     def returnPressed(self, btn):
         self.parent.returnMain()
+        
+    def importPressed(self, btn):
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+    
+    def applyPressed(self, btn):
+        pass
     
     def shutDownFS(self, arg):
         self.fs.shutdown()
