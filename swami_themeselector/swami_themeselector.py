@@ -203,18 +203,24 @@ class SwamiModule(Box):
         #The current selected theme path - self.selectedTheme
         
         #Update Moksha Theme
-        eProfile = "bodhi" #ideally we should check what profile they are using need to figure out how to do that
+        #eProfile = "bodhi" #ideally we should check what profile they are using need to figure out how to do that
+        eProfileFile = neet.EETFile()
+        eProfileFile.importFile("%s/.e/e/config/profile.cfg"%os.path.expanduser("~"), "-x")
+        eProfile = eProfileFile.readValue()
         
         eCFG = neet.EETFile()
         eCFG.importFile("%s/.e/e/config/%s/e.cfg"%(os.path.expanduser("~"), eProfile))
         ethemeData = eCFG.readValue((("list", "themes"), ("item", "E_Config_Theme",  "category" , "theme"), ("value", "file")))
         
         ethemeData.data = self.selectedTheme
-        print ethemeData.data
+        #print ethemeData.data
         eCFG.saveData()
         
         #Update elm theme order
-        elmProfile = "standard" #same as eProfile - shouldn't just assume
+        #elmProfile = "standard" #same as eProfile - shouldn't just assume
+        elmProfileFile = neet.EETFile()
+        elmProfileFile.importFile("%s/.elementary/config/profile.cfg"%os.path.expanduser("~"), "-x")
+        elmProfile = elmProfileFile.readValue()
         
         elmCFG = neet.EETFile()
         elmCFG.importFile("%s/.elementary/config/%s/base.cfg"%(os.path.expanduser("~"), elmProfile))
