@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
-#SwamiModuleDirectory = "."
+#SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
+SwamiModuleDirectory = ""
 
 #A rewrite of the E control panel in Python and Elementary for Moksha
 
@@ -92,16 +92,20 @@ class MainWin(StandardWindow):
                         inSearch = True
                 
                 if not inSearch:
-                    self.modules[m].button.hide()
-                    #self.modules[m].button.disabled = True
+                    #self.modules[m].button.hide()
+                    self.modules[m].button.disabled = True
         else:
             for m in self.modules:
-                self.modules[m].button.show()
-                #self.modules[m].button.disabled = False
+                #self.modules[m].button.show()
+                self.modules[m].button.disabled = False
     
     def loadModules(self):
         modulesToLoad = []
-        currentDir = os.listdir(SwamiModuleDirectory)
+        if not SwamiModuleDirectory:
+            currentDir = os.listdir(".")
+        else:
+            currentDir = os.listdir(SwamiModuleDirectory)
+        
         for thing in currentDir:
             if os.path.isdir("%s%s"%(SwamiModuleDirectory, thing)) and thing[:6] == "swami_":
                 modulesToLoad.append(thing)

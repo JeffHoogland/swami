@@ -54,10 +54,7 @@ class SwamiModule(Box):
         self.currentPreview = None
         self.selectedTheme = None
         
-        
         self.previewBox = previewBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-        #Doesn't seem to do anything
-        #previewBox.size_hint_aspect_set(EVAS_ASPECT_CONTROL_BOTH, 16, 9)
         previewBox.show()
         
         self.themeList = List(self, size_hint_weight=(0.25, 1.0), 
