@@ -15,7 +15,10 @@ from efl.elementary.window import StandardWindow
 from efl.elementary.icon import Icon
 from efl.elementary.naviframe import Naviframe
 from efl.elementary.box import Box
+from efl.elementary.frame import Frame
 from efl.elementary.button import Button
+from efl.elementary.entry import Entry
+from efl.elementary.scroller import Scroller
 
 EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
 EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
@@ -35,15 +38,36 @@ class MainWin(StandardWindow):
         icon.show()
         self.icon_object_set(icon.object_get())
         
+        self.modules = {}
+        
         self.nf = Naviframe(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         self.nf.show()
         
-        self.resize_object_add(self.nf)
+        searchFrame = Frame(self, size_hint_weight = EXPAND_HORIZ, size_hint_align=FILL_HORIZ)
+        searchFrame.text = "Search"
+        searchFrame.show()
         
-        self.modules = {}
+        self.searchEntry = searchEntry = Entry(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
+        searchEntry.callback_changed_add(self.searchTextUpdated)
+        searchEntry.show()
+        
+        searchFrame.content = searchEntry
+        
+        scr = Scroller(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
+        scr.show()
+        
         self.moduleBox = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         
+        scr.content = self.moduleBox
+
+        self.moduleSections = {}
+        
         self.loadModules()
+        
+        self.configBox = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
+        self.configBox.pack_end(searchFrame)
+        self.configBox.pack_end(scr)
+        self.configBox.show()
 
         mainBox = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         mainBox.pack_end(self.nf)
@@ -56,6 +80,25 @@ class MainWin(StandardWindow):
         # show the window
         self.show()
     
+    def searchTextUpdated(self, ourEntry):
+        #print ourEntry.text
+        
+        if ourEntry.text:
+            for m in self.modules:
+                inSearch = False
+                
+                for d in self.modules[m].searchData:
+                    if ourEntry.text in d:
+                        inSearch = True
+                
+                if not inSearch:
+                    self.modules[m].button.hide()
+                    #self.modules[m].button.disabled = True
+        else:
+            for m in self.modules:
+                self.modules[m].button.show()
+                #self.modules[m].button.disabled = False
+    
     def loadModules(self):
         modulesToLoad = []
         currentDir = os.listdir(SwamiModuleDirectory)
@@ -67,14 +110,34 @@ class MainWin(StandardWindow):
         for m in modulesToLoad:
             imported = importlib.import_module(m)
             self.modules[imported] = imported.SwamiModule(self)
-        
+            
+            if self.modules[imported].section not in self.moduleSections:
+                self.addModuleSection(self.modules[imported].section)
+            
             button = Button(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
             button.content_set(self.modules[imported].icon)
             button.text = self.modules[imported].name
             button.callback_clicked_add(self.modulePressed, self.modules[imported])
             button.show()
             
-            self.moduleBox.pack_end(button)
+            self.modules[imported].button = button
+            
+            self.moduleSections[self.modules[imported].section].pack_end(button)
+    
+    def addModuleSection(self, ourSection):
+        frame = Frame(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
+        frame.text = ourSection
+        frame.autocollapse_set(True)
+        frame.show()
+        
+        box = Box(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
+        box.show()
+        
+        frame.content = box
+        
+        self.moduleBox.pack_end(frame)
+        
+        self.moduleSections[ourSection] = box
     
     def modulePressed(self, btn, module):
         self.title = "Swami Control Panel - %s"%module.name
@@ -82,7 +145,7 @@ class MainWin(StandardWindow):
     
     def returnMain(self):
         self.title = "Swami Control Panel"
-        self.nf.item_simple_push(self.moduleBox)
+        self.nf.item_simple_push(self.configBox)
 
 if __name__ == "__main__":
     elementary.init()

@@ -4,6 +4,7 @@ import os
 import webbrowser
 import shutil
 import neet
+import time
 
 from efl import ecore
 
@@ -39,6 +40,10 @@ class SwamiModule(Box):
         self.parent = rent
         
         self.name = "Theme Selector"
+        self.section = "Appearance"
+        self.searchData = ["theme", "gtk", "elementary", "elm", "gnome",
+                    "appearance", "look"]
+        self.button = None
         
         self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         self.icon.standard_set('preferences-desktop-theme')
@@ -215,6 +220,8 @@ class SwamiModule(Box):
         ethemeData.data = self.selectedTheme
         #print ethemeData.data
         eCFG.saveData()
+        #eCFG.saveData("/home/jeff/written_e.cfg")
+        time.sleep(1.5)
         
         #Update elm theme order
         #elmProfile = "standard" #same as eProfile - shouldn't just assume
@@ -227,7 +234,7 @@ class SwamiModule(Box):
         
         themeData = elmCFG.readValue((("value", "theme"),))
         
-        themeName = os.path.basename(self.selectedTheme)[:-4]
+        themeName = edje.file_data_get(self.selectedTheme, "elm-theme")
         
         themeData.data = "%s:MokshaRadiance:default"%themeName
         
@@ -235,6 +242,8 @@ class SwamiModule(Box):
         
         #Restart the desktop to have theme changes take effect
         cmd = ecore.Exe("enlightenment_remote -restart")
+        #Flush Elm settings
+        elementary.Configuration.all_flush
         
     def shutDownFS(self, arg):
         self.fs.shutdown()
