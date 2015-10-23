@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # encoding: utf-8
 
+SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
+#SwamiModuleDirectory = "."
+
 #A rewrite of the E control panel in Python and Elementary for Moksha
 
 import os
@@ -55,9 +58,9 @@ class MainWin(StandardWindow):
     
     def loadModules(self):
         modulesToLoad = []
-        currentDir = os.listdir(".")
+        currentDir = os.listdir(SwamiModuleDirectory)
         for thing in currentDir:
-            if os.path.isdir(thing) and thing[:6] == "swami_":
+            if os.path.isdir("%s%s"%(SwamiModuleDirectory, thing)) and thing[:6] == "swami_":
                 modulesToLoad.append(thing)
         
         #print modulesToLoad
