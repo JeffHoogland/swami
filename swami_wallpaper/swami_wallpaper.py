@@ -15,8 +15,7 @@ from efl.elementary.layout import Layout
 
 from efl import edje
 from efl.edje import Edje
-from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_XZ_CENTER_AXIS, \
-        ELM_FLIP_ROTATE_YZ_CENTER_AXIS, ELM_FLIP_INTERACTION_ROTATE
+from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_YZ_CENTER_AXIS
 from efl.elementary.list import List, ELM_LIST_LIMIT, ELM_LIST_COMPRESS
 
 from elmextensions import FileSelector

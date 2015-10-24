@@ -14,12 +14,12 @@ from efl.elementary.box import Box
 from efl.elementary.icon import Icon
 from efl.elementary.label import Label
 from efl.elementary.calendar_elm import Calendar, \
-    ELM_DAY_MONDAY, ELM_DAY_THURSDAY, ELM_DAY_SATURDAY, \
-    ELM_CALENDAR_UNIQUE, ELM_CALENDAR_DAILY, ELM_CALENDAR_WEEKLY, \
-    ELM_CALENDAR_MONTHLY, ELM_CALENDAR_ANNUALLY, \
     ELM_CALENDAR_SELECT_MODE_NONE, ELM_CALENDAR_SELECT_MODE_ONDEMAND
+from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_YZ_CENTER_AXIS
 from efl.elementary.clock import Clock
 from efl.elementary.frame import Frame
+from efl.elementary.list import List
+from efl.elementary.entry import Entry
 
 from elmextensions import StandardButton
 
@@ -57,6 +57,8 @@ class SwamiModule(Box):
         self.launchArg = "--time"
         self.button = None
         
+        self.timezones = getTimeZones()
+        
         self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         #Use FDO icons -> http://standards.freedesktop.org/icon-naming-spec/latest/ar01s04.html
         self.icon.standard_set('clock')
@@ -87,7 +89,7 @@ class SwamiModule(Box):
         tzframe.text = "Current Timezone"
         tzframe.show()
 
-        tz = Label(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        self.tz = tz = Label(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         tz.text = "<b>%s</b>"%time.tzname[0]
         tz.show()
         
@@ -99,6 +101,57 @@ class SwamiModule(Box):
         self.mainBox.pack_end(tzframe)
         self.mainBox.show()
         
+        self.zoneList = zoneList = List(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        zoneList.callback_item_focused_add(self.enableTZSelect)
+        self.zones = []
+        for tz in self.timezones:
+            for each in self.timezones[tz]:
+                if each not in self.zones:
+                    self.zones.append(each)
+        self.zones.sort(reverse=True)
+        for zone in self.zones:
+            zoneList.item_append(zone)
+        zoneList.go()
+        zoneList.show()
+        
+        self.zoneitems = zoneList.items_get()
+
+        sframe = Frame(self, size_hint_weight=EXPAND_HORIZ, size_hint_align=FILL_HORIZ)
+        sframe.text = "Search"
+        self.search = search = Entry(self)
+        search.single_line = True
+        search.callback_changed_add(self.searchChange)
+        sframe.content = search
+        search.show()
+        sframe.show()
+        
+        self.buttonTZSelect = buttonTZSelect = StandardButton(self, "Select", "ok", self.tzselectPressed)
+        buttonTZSelect.disabled = True
+        buttonTZSelect.show()
+        
+        buttonTZCancel = StandardButton(self, "Cancel", "close", self.tzcancelPressed)
+        buttonTZCancel.show()
+        
+        tzBBox = Box(self, size_hint_weight = EXPAND_HORIZ, size_hint_align = FILL_BOTH)
+        tzBBox.horizontal = True
+        tzBBox.pack_end(buttonTZSelect)
+        tzBBox.pack_end(buttonTZCancel)
+        tzBBox.show()
+
+        tzChangeBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        tzChangeBox.pack_end(zoneList)
+        tzChangeBox.pack_end(sframe)
+        tzChangeBox.pack_end(tzBBox)
+        tzChangeBox.show()
+
+        search.focus = True
+        
+        self.flip = Flip(self, size_hint_weight=EXPAND_BOTH,
+                         size_hint_align=FILL_BOTH)
+        self.flip.part_content_set("front", self.mainBox)
+        self.flip.part_content_set("back", tzChangeBox)
+        self.flip.show()
+        
         buttonBox = Box(self, size_hint_weight = EXPAND_HORIZ, size_hint_align = FILL_BOTH)
         buttonBox.horizontal = True
         
@@ -106,13 +159,13 @@ class SwamiModule(Box):
         buttonApply.disabled = True
         buttonApply.show()
         
-        buttonSync = StandardButton(self, "Sync from Internet", "refresh", self.syncPressed)
+        self.buttonSync = buttonSync = StandardButton(self, "Sync from Internet", "refresh", self.syncPressed)
         buttonSync.show()
         
-        buttonDT = StandardButton(self, "Edit Date and Time", "x-office-calendar", self.editDTPressed)
+        self.buttonDT = buttonDT = StandardButton(self, "Edit Date and Time", "x-office-calendar", self.editDTPressed)
         buttonDT.show()
         
-        buttonTZ = StandardButton(self, "Change Timezone", "clock", self.editTZPressed)
+        self.buttonTZ = buttonTZ = StandardButton(self, "Change Timezone", "clock", self.editTZPressed)
         buttonTZ.show()
         
         buttonReturn = StandardButton(self, "Back", "go-previous", self.returnPressed)
@@ -125,25 +178,70 @@ class SwamiModule(Box):
         buttonBox.pack_end(buttonReturn)
         buttonBox.show()
         
-        self.pack_end(self.mainBox)
+        self.pack_end(self.flip)
         self.pack_end(buttonBox)
         
     def returnPressed(self, btn):
         self.parent.returnMain()
     
     def applyPressed(self, btn):
-        pass
+        self.changeTime()
+        self.cal.select_mode = ELM_CALENDAR_SELECT_MODE_NONE
+        
+        self.clock.edit_set(False)
+        self.buttonApply.disabled = True
     
     def syncPressed(self, btn):
         self.runCommand('ntpdate pool.ntp.org')
     
     def editTZPressed(self, btn):
-        pass
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+        self.buttonSync.disabled = True
+        self.buttonDT.disabled = True
+        self.buttonTZ.disabled = True
     
     def editDTPressed(self, btn):
         self.buttonApply.disabled = False
         self.cal.select_mode = ELM_CALENDAR_SELECT_MODE_ONDEMAND
         self.clock.edit_set(True)
+    
+    def tzselectPressed(self, btn):
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+        self.buttonSync.disabled = False
+        self.buttonDT.disabled = False
+        self.buttonTZ.disabled = False
+        
+        selectedZone = self.zoneList.selected_item_get().text
+        
+        self.runCommand('changetz.sh %s'%selectedZone)
+        self.tz.text = "<b>%s</b>"%selectedZone
+    
+    def tzcancelPressed(self, btn):
+        self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
+        self.buttonSync.disabled = False
+        self.buttonDT.disabled = False
+        self.buttonTZ.disabled = False
+    
+    def enableTZSelect(self, lst, item):
+        self.buttonTZSelect.disabled = False
+    
+    def changeTime(self):
+        #print "In the change time function"
+        times = list(self.clock.time_get())
+        for x in times:
+            if x < 10:
+                times[times.index(x)] = "0%s"%x
+        if not self.cal.selected_time:
+            self.cal.selected_time = dt.date.today()
+        self.runCommand('changetime.sh %s %s %s %s'%(self.cal.selected_time, times[0], times[1], times[2]))
+    
+    def searchChange( self, entry ):
+        #print entry.text
+        zeindex = searchList(entry.text, self.zones)
+        self.zoneitems[zeindex].selected_set(True)
+        self.zoneitems[zeindex].bring_in()
+        self.search.focus = True
+        #print self.zones[zeindex]
     
     def runCommand(self, ourCommand):
         cmd = esudo.eSudo(ourCommand, self.parent)

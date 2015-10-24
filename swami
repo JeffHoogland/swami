@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-#SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
-SwamiModuleDirectory = ""
+SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
+#SwamiModuleDirectory = ""
 
 #A rewrite of the E control panel in Python and Elementary for Moksha
 
@@ -93,7 +93,7 @@ class MainWin(StandardWindow):
                 inSearch = False
                 
                 for d in self.modules[m].searchData:
-                    if ourEntry.text in d:
+                    if ourEntry.text.lower() in d:
                         inSearch = True
                 
                 if not inSearch:

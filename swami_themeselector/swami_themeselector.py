@@ -16,8 +16,7 @@ from efl.elementary.image import Image
 
 from efl import edje
 from efl.edje import Edje
-from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_XZ_CENTER_AXIS, \
-        ELM_FLIP_ROTATE_YZ_CENTER_AXIS, ELM_FLIP_INTERACTION_ROTATE
+from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_YZ_CENTER_AXIS
 from efl.elementary.list import List, ELM_LIST_LIMIT, ELM_LIST_COMPRESS
 
 from elmextensions import FileSelector
@@ -30,9 +29,11 @@ FILL_BOTH = EVAS_HINT_FILL, EVAS_HINT_FILL
 FILL_HORIZ = EVAS_HINT_FILL, 0.5
 ALIGN_CENTER = 0.5, 0.5
 
+UserHome = os.path.expanduser("~")
+
 ThemeURL = "http://www.bodhilinux.com/softwaregroup/themes/"
 ThemePaths = [ "/usr/share/enlightenment/data/themes/",
-                "%s/.e/e/themes/"%os.path.expanduser("~")]
+                "%s/.e/e/themes/"%UserHome]
 
 class SwamiModule(Box):
     def __init__(self, rent):
@@ -175,8 +176,8 @@ class SwamiModule(Box):
         self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
         ourPath, themeFile = os.path.split(ourFile)
         if ourFile[-4:] == ".edj":
-            shutil.copy2(ourFile, "%s/.e/e/themes"%os.path.expanduser("~"))
-            self.addTheme(themeFile, "%s/.e/e/themes/"%os.path.expanduser("~"))
+            shutil.copy2(ourFile, "%s/.e/e/themes"%UserHome)
+            self.addTheme(themeFile, "%s/.e/e/themes/"%UserHome)
         else:
             errorPop = StandardPopup(self, "%s does not appear to be a valid theme file."%themeFile, 'dialog-warning')
             errorPop.show()
@@ -205,30 +206,34 @@ class SwamiModule(Box):
         #print edje.file_data_get(themeFile, "gtk-theme")
         #The current selected theme path - self.selectedTheme
         
+        
         #Update Moksha Theme
-        #eProfile = "bodhi" #ideally we should check what profile they are using need to figure out how to do that
+        #Get existing profile
         eProfileFile = neet.EETFile()
-        eProfileFile.importFile("%s/.e/e/config/profile.cfg"%os.path.expanduser("~"), "-x")
+        eProfileFile.importFile("%s/.e/e/config/profile.cfg"%UserHome, "-x")
         eProfile = eProfileFile.readValue()
         
+        #change to a tmp profile so we aren't writing to the one in memory
+        ecore.Exe("cp -a %s/.e/e/config/%s %s/.e/e/config/__tmpprofile"%(UserHome, eProfile, UserHome))
+        time.sleep(1)
+        ecore.Exe("enlightenment_remote -default-profile-set __tmpprofile")
+        
         eCFG = neet.EETFile()
-        eCFG.importFile("%s/.e/e/config/%s/e.cfg"%(os.path.expanduser("~"), eProfile))
+        eCFG.importFile("%s/.e/e/config/%s/e.cfg"%(UserHome, eProfile))
         ethemeData = eCFG.readValue((("list", "themes"), ("item", "E_Config_Theme",  "category" , "theme"), ("value", "file")))
         
         ethemeData.data = self.selectedTheme
         #print ethemeData.data
         eCFG.saveData()
-        #eCFG.saveData("/home/jeff/written_e.cfg")
-        time.sleep(1.5)
         
         #Update elm theme order
         #elmProfile = "standard" #same as eProfile - shouldn't just assume
         elmProfileFile = neet.EETFile()
-        elmProfileFile.importFile("%s/.elementary/config/profile.cfg"%os.path.expanduser("~"), "-x")
+        elmProfileFile.importFile("%s/.elementary/config/profile.cfg"%UserHome, "-x")
         elmProfile = elmProfileFile.readValue()
         
         elmCFG = neet.EETFile()
-        elmCFG.importFile("%s/.elementary/config/%s/base.cfg"%(os.path.expanduser("~"), elmProfile))
+        elmCFG.importFile("%s/.elementary/config/%s/base.cfg"%(UserHome, elmProfile))
         
         themeData = elmCFG.readValue((("value", "theme"),))
         
@@ -238,8 +243,12 @@ class SwamiModule(Box):
         
         elmCFG.saveData()
         
-        #Restart the desktop to have theme changes take effect
-        cmd = ecore.Exe("enlightenment_remote -restart")
+        #Swap back to our updated profile
+        ecore.Exe("enlightenment_remote -default-profile-set %s"%eProfile)
+        
+        #Remove the __tmpprofile
+        shutil.rmtree("%s/.e/e/config/__tmpprofile"%(UserHome))
+        
         #Flush Elm settings
         elementary.Configuration.all_flush
         
