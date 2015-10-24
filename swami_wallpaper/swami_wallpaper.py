@@ -39,6 +39,7 @@ class SwamiModule(Box):
         self.name = "Wallpaper"
         self.section = "Appearance"
         self.searchData = ["wallpaper", "appearance", "look"]
+        self.launchArg = "--wallpaper"
         self.button = None
         
         self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)

@@ -43,6 +43,7 @@ class SwamiModule(Box):
         self.section = "Appearance"
         self.searchData = ["theme", "gtk", "elementary", "elm", "gnome",
                     "appearance", "look"]
+        self.launchArg = "--theme"
         self.button = None
         
         self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)

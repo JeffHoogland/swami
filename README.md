@@ -7,4 +7,25 @@ Requires:
 - [elmextensions > 0.1.7](https://github.com/JeffHoogland/python-elm-extensions)
 - [python-neet](https://github.com/JeffHoogland/neet)
 
+Module TODO List:
+- Theme
+- Wallpaper
+- Module Loading
+- Gadget Placement
+- Ecomorph
+- places
+- ibar settings
+- startup / restart applications
+- window focus settings
+- menu settings
+- power management
+- profile selection
+- Date and Time
+- User Management
+- Light DM settings
+- Screen Resolution
+- Key / mouse / edge / acpi bindings
+- Keyboard layout
+- **Other reasonable suggestions**
+
 By: [Jeff Hoogland](http://www.jeffhoogland.com/)

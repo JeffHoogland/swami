@@ -7,6 +7,7 @@ SwamiModuleDirectory = ""
 #A rewrite of the E control panel in Python and Elementary for Moksha
 
 import os
+import sys
 import importlib
 
 from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
@@ -27,7 +28,7 @@ FILL_HORIZ = EVAS_HINT_FILL, 0.5
 ALIGN_CENTER = 0.5, 0.5
 
 class MainWin(StandardWindow):
-    def __init__(self):
+    def __init__(self, launchArg):
         # create the main window
         StandardWindow.__init__(self, "swami", "Swami Control Panel",
                                 autodel=True, size=(600, 400))
@@ -39,6 +40,7 @@ class MainWin(StandardWindow):
         self.icon_object_set(icon.object_get())
         
         self.modules = {}
+        self.launchArgs = {}
         
         self.nf = Naviframe(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         self.nf.show()
@@ -76,6 +78,9 @@ class MainWin(StandardWindow):
         self.resize_object_add(mainBox)
 
         self.returnMain()
+
+        if launchArg:
+            self.nf.item_simple_push(self.launchArgs[launchArg])
 
         # show the window
         self.show()
@@ -125,6 +130,7 @@ class MainWin(StandardWindow):
             button.show()
             
             self.modules[imported].button = button
+            self.launchArgs[self.modules[imported].launchArg] = self.modules[imported]
             
             self.moduleSections[self.modules[imported].section].pack_end(button)
     
@@ -154,7 +160,12 @@ class MainWin(StandardWindow):
 if __name__ == "__main__":
     elementary.init()
 
-    app = MainWin()
+    if len(sys.argv) > 1:
+        launchArg = sys.argv[1]
+    else:
+        launchArg = None
+
+    app = MainWin(launchArg)
 
     elementary.run()
 
