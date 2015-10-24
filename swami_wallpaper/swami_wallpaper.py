@@ -51,7 +51,13 @@ class SwamiModule(Box):
         self.currentPreview = None
         self.selectedWall = None
         
-        self.previewBox = previewBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        self.flip = Flip(self, size_hint_weight=EXPAND_BOTH,
+                         size_hint_align=FILL_BOTH)
+        
+        wallBox = Box(self.flip, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        wallBox.horizontal_set(True)
+        
+        self.previewBox = previewBox = Box(wallBox, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         previewBox.show()
         
         self.wallList = List(self, size_hint_weight=(0.25, 1.0), 
@@ -61,8 +67,6 @@ class SwamiModule(Box):
         self.wallList.go()
         self.wallList.show()
         
-        wallBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-        wallBox.horizontal_set(True)
         wallBox.pack_end(self.wallList)
         wallBox.pack_end(self.previewBox)
         wallBox.show()
@@ -78,8 +82,6 @@ class SwamiModule(Box):
         
         # Flip object has the file selector on one side
         #   and the GUI on the other
-        self.flip = Flip(self, size_hint_weight=EXPAND_BOTH,
-                         size_hint_align=FILL_BOTH)
         self.flip.part_content_set("front", wallBox)
         self.flip.part_content_set("back", self.fs)
         self.flip.show()
@@ -136,9 +138,9 @@ class SwamiModule(Box):
     def wallSelected(self, obj, item):
         self.previewBox.clear()
         
-        #edjeObj = Layout(self.previewBox, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        edjeObj = Layout(self.previewBox, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
-        edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        #edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
         filePath = item.data["filePath"]
         edjeObj.file_set(filePath, "e/desktop/background")

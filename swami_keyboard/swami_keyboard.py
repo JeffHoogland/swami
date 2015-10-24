@@ -19,20 +19,15 @@ class SwamiModule(Box):
         Box.__init__(self, rent)
         self.parent = rent
         
-        #This appears on the button in the main swmai window
-        self.name = "Skel"
-        #The section in the main window the button is added to
-        self.section = "The Body"
-        #Search terms that this module should appear for
-        self.searchData = []
-        #Command line argument to open this module directly
-        self.launchArg = "--skel"
-        #Should be none by default. This value is used internally by swami
+        self.name = "Keyboard Layout"
+        self.section = "System Settings"
+        self.searchData = ["keyboard", "layout", "system", "input"]
+        self.launchArg = "--keyboard"
         self.button = None
         
         self.icon = Icon(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         #Use FDO icons -> http://standards.freedesktop.org/icon-naming-spec/latest/ar01s04.html
-        self.icon.standard_set('icon-name')
+        self.icon.standard_set('input-keyboard')
         self.icon.show()
         
         self.mainBox = Box(self, size_hint_weight = EXPAND_BOTH)

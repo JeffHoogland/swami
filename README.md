@@ -9,9 +9,15 @@ Requires:
 - python-tz
 - python-dateutil
 
-Module TODO List:
+**Module TODO List:**
+
+*Started:*
 - Theme
 - Wallpaper
+- Keyboard layout
+- Date and Time
+
+*Up for grabs:*
 - Module Loading
 - Gadget Placement
 - Ecomorph
@@ -22,12 +28,10 @@ Module TODO List:
 - menu settings
 - power management
 - profile selection
-- Date and Time
 - User Management
 - Light DM settings
 - Screen Resolution
 - Key / mouse / edge / acpi bindings
-- Keyboard layout
 - **Other reasonable suggestions**
 
 By: [Jeff Hoogland](http://www.jeffhoogland.com/)
