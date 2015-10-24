@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
-#SwamiModuleDirectory = ""
+#SwamiModuleDirectory = "/usr/lib/python2.7/dist-packages/"
+SwamiModuleDirectory = ""
 
 #A rewrite of the E control panel in Python and Elementary for Moksha
 
