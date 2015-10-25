@@ -13,6 +13,7 @@ from efl import elementary
 from efl.elementary.box import Box
 from efl.elementary.icon import Icon
 from efl.elementary.image import Image
+from efl.elementary.scroller import Scroller
 
 from efl import edje
 from efl.edje import Edje
@@ -56,10 +57,10 @@ class SwamiModule(Box):
         self.currentPreview = None
         self.selectedTheme = None
         
-        self.previewBox = previewBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        self.previewBox = previewBox = Scroller(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         previewBox.show()
         
-        self.themeList = List(self, size_hint_weight=(0.25, 1.0), 
+        self.themeList = List(self, size_hint_weight=(0.35, 1.0), 
                     size_hint_align=FILL_BOTH, mode=ELM_LIST_COMPRESS)
         #Adds themes in the ThemePaths to the list for selection
         self.populateThemes()
@@ -155,7 +156,7 @@ class SwamiModule(Box):
         self.themeSelected(None, listItem)
     
     def themeSelected(self, obj, item):
-        self.previewBox.clear()
+        #self.previewBox.clear()
         
         edjeObj = Edje(self.evas, size_hint_weight=EXPAND_BOTH, 
                 size_hint_align=FILL_BOTH)
@@ -168,7 +169,7 @@ class SwamiModule(Box):
         
         edjeObj.show()
         
-        self.previewBox.pack_end(edjeObj)
+        self.previewBox.content_set(edjeObj)
         self.currentPreview = edjeObj
         self.selectedTheme = filePath
     
