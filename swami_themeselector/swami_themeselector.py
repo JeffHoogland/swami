@@ -179,7 +179,7 @@ class SwamiModule(Box):
             shutil.copy2(ourFile, "%s/.e/e/themes"%UserHome)
             self.addTheme(themeFile, "%s/.e/e/themes/"%UserHome)
         else:
-            errorPop = StandardPopup(self, "%s does not appear to be a valid theme file."%themeFile, 'dialog-warning')
+            errorPop = StandardPopup(self, "%s does not appear to be a valid theme file."%themeFile, 'dialog-warning', size_hint_weight=EXPAND_BOTH)
             errorPop.show()
     
     def returnPressed(self, btn):

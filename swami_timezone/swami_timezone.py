@@ -18,10 +18,9 @@ from efl.elementary.calendar_elm import Calendar, \
 from efl.elementary.flip import Flip, ELM_FLIP_ROTATE_YZ_CENTER_AXIS
 from efl.elementary.clock import Clock
 from efl.elementary.frame import Frame
-from efl.elementary.list import List
-from efl.elementary.entry import Entry
 
 from elmextensions import StandardButton
+from elmextensions import SearchableList
 
 EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
 EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
@@ -39,12 +38,6 @@ def getTimeZones():
         result[offset].append(name)
         result[abbrev].append(name)    
     return result
-
-def searchList(text, lst):
-    for item in lst:
-        if text.lower() in item.lower()[:len(text)]:
-            return lst.index(item)
-    return 0
 
 class SwamiModule(Box):
     def __init__(self, rent):
@@ -101,7 +94,7 @@ class SwamiModule(Box):
         self.mainBox.pack_end(tzframe)
         self.mainBox.show()
         
-        self.zoneList = zoneList = List(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+        self.zoneList = zoneList = SearchableList(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         zoneList.callback_item_focused_add(self.enableTZSelect)
         self.zones = []
         for tz in self.timezones:
@@ -111,19 +104,7 @@ class SwamiModule(Box):
         self.zones.sort(reverse=True)
         for zone in self.zones:
             zoneList.item_append(zone)
-        zoneList.go()
         zoneList.show()
-        
-        self.zoneitems = zoneList.items_get()
-
-        sframe = Frame(self, size_hint_weight=EXPAND_HORIZ, size_hint_align=FILL_HORIZ)
-        sframe.text = "Search"
-        self.search = search = Entry(self)
-        search.single_line = True
-        search.callback_changed_add(self.searchChange)
-        sframe.content = search
-        search.show()
-        sframe.show()
         
         self.buttonTZSelect = buttonTZSelect = StandardButton(self, "Select", "ok", self.tzselectPressed)
         buttonTZSelect.disabled = True
@@ -140,11 +121,8 @@ class SwamiModule(Box):
 
         tzChangeBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         tzChangeBox.pack_end(zoneList)
-        tzChangeBox.pack_end(sframe)
         tzChangeBox.pack_end(tzBBox)
         tzChangeBox.show()
-
-        search.focus = True
         
         self.flip = Flip(self, size_hint_weight=EXPAND_BOTH,
                          size_hint_align=FILL_BOTH)
@@ -234,14 +212,6 @@ class SwamiModule(Box):
         if not self.cal.selected_time:
             self.cal.selected_time = dt.date.today()
         self.runCommand('changetime.sh %s %s %s %s'%(self.cal.selected_time, times[0], times[1], times[2]))
-    
-    def searchChange( self, entry ):
-        #print entry.text
-        zeindex = searchList(entry.text, self.zones)
-        self.zoneitems[zeindex].selected_set(True)
-        self.zoneitems[zeindex].bring_in()
-        self.search.focus = True
-        #print self.zones[zeindex]
     
     def runCommand(self, ourCommand):
         cmd = esudo.eSudo(ourCommand, self.parent)
