@@ -17,6 +17,7 @@ A control panel written in Python and Elementary for the Moksha Desktop
 - Keyboard layout
 - Date and Time
 - Keyboard Settings
+- Light DM
 
 *Up for grabs:*
 - Module Loading
@@ -30,7 +31,6 @@ A control panel written in Python and Elementary for the Moksha Desktop
 - power management
 - profile selection
 - User Management
-- Light DM settings
 - Screen Resolution
 - Key / mouse / edge / acpi bindings
 - **Other reasonable suggestions**
