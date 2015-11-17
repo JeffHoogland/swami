@@ -5,6 +5,7 @@ import webbrowser
 import shutil
 import neet
 import time
+import dbus
 
 from efl import ecore
 
@@ -207,6 +208,11 @@ class SwamiModule(Box):
         #print edje.file_data_get(themeFile, "gtk-theme")
         #The current selected theme path - self.selectedTheme
         
+        #Dbus call to stop Moksha from fighting with our changes
+        bus = dbus.SessionBus()
+        obj = bus.get_object('org.enlightenment.wm.service', '/org/enlightenment/wm/RemoteObject')
+        iface = dbus.Interface(obj, dbus_interface='org.enlightenment.wm.Config')
+        iface.SaveBlock()
         
         #Update Moksha Theme
         #Get existing profile
@@ -215,9 +221,9 @@ class SwamiModule(Box):
         eProfile = eProfileFile.readValue()
         
         #change to a tmp profile so we aren't writing to the one in memory
-        ecore.Exe("cp -a %s/.e/e/config/%s %s/.e/e/config/__tmpprofile"%(UserHome, eProfile, UserHome))
-        time.sleep(1)
-        ecore.Exe("enlightenment_remote -default-profile-set __tmpprofile")
+        #ecore.Exe("cp -a %s/.e/e/config/%s %s/.e/e/config/__tmpprofile"%(UserHome, eProfile, UserHome))
+        #time.sleep(1)
+        #ecore.Exe("enlightenment_remote -default-profile-set __tmpprofile")
         
         eCFG = neet.EETFile()
         eCFG.importFile("%s/.e/e/config/%s/e.cfg"%(UserHome, eProfile))
@@ -245,10 +251,17 @@ class SwamiModule(Box):
         elmCFG.saveData()
         
         #Swap back to our updated profile
-        ecore.Exe("enlightenment_remote -default-profile-set %s"%eProfile)
+        #ecore.Exe("enlightenment_remote -default-profile-set %s"%eProfile)
         
         #Remove the __tmpprofile
-        shutil.rmtree("%s/.e/e/config/__tmpprofile"%(UserHome))
+        #shutil.rmtree("%s/.e/e/config/__tmpprofile"%(UserHome))
+        
+        #Give Moksha control of the config data again
+        iface.Load()
+        iface.SaveRelease()
+        
+        #Restart to apply the new theme
+        ecore.Exe("enlightenment_remote -restart")
         
         #Flush Elm settings
         elementary.Configuration.all_flush

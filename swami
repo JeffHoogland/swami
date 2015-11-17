@@ -10,6 +10,8 @@ import os
 import sys
 import importlib
 
+from efl import ecore
+
 from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
 from efl import elementary
 from efl.elementary.window import StandardWindow
@@ -33,6 +35,10 @@ class MainWin(StandardWindow):
         StandardWindow.__init__(self, "swami", "Swami Control Panel",
                                 autodel=True, size=(600, 400))
         self.callback_delete_request_add(lambda o: elementary.exit())
+
+        #Make sure the dbus module is loaded. Changing Moksha settings needs this
+        ecore.Exe("enlightenment_remote -module-load msgbus")
+        ecore.Exe("enlightenment_remote -module-enable msgbus")
 
         icon = Icon(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         icon.standard_set('preferences-system')
