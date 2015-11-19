@@ -6,6 +6,7 @@ import shutil
 import neet
 import time
 import dbus
+import shutil
 
 from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
 from efl import elementary
@@ -160,9 +161,18 @@ class SwamiModule(Box):
     def fileSelected(self, fs, ourPath):
         self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)
         
-        ourFile = os.path.splitext(os.path.basename(ourPath))[0]
+        #move the file to temp dir / rename it so we can work around a issue with spaces in file names
+        tmpCount = 1
+        while os.path.isfile("/tmp/swamiwall_%s"%tmpCount):
+            tmpCount += 1
         
-        ecore.Exe('convertimage.sh "%s" "%s"'%(ourPath, ourFile))
+        shutil.copy2(ourPath, '/tmp/swamiwall_%s'%tmpCount)
+        
+        time.sleep(1)
+        
+        ourFile = os.path.splitext(os.path.basename(ourPath))[0].replace(" ", "")
+        
+        ecore.Exe('convertimage.sh %s %s'%('/tmp/swamiwall_%s'%tmpCount, ourFile))
         
         time.sleep(1)
         self.addWall("%s.edj"%ourFile, "%s/.e/e/backgrounds/"%UserHome)

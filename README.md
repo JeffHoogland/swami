@@ -16,23 +16,22 @@ A control panel written in Python and Elementary for the Moksha Desktop
 - Wallpaper
 - Keyboard layout
 - Date and Time
-- Keyboard Settings
 - Light DM
 
 *Up for grabs:*
+- startup / restart applications
+- Key / mouse / edge / acpi bindings
+- User Management
 - Module Loading
 - Gadget Placement
 - Ecomorph
 - places
+- Screen Resolution
 - ibar settings
-- startup / restart applications
 - window focus settings
 - menu settings
 - power management
 - profile selection
-- User Management
-- Screen Resolution
-- Key / mouse / edge / acpi bindings
 - **Other reasonable suggestions**
 
 By: [Jeff Hoogland](http://www.jeffhoogland.com/)
