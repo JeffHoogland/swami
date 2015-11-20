@@ -27,8 +27,6 @@ from elmextensions import StandardButton
 
 UserHome = os.path.expanduser("~")
 
-OutputDir="%s/.e/e/backgrounds"%UserHome
-
 EXPAND_BOTH = EVAS_HINT_EXPAND, EVAS_HINT_EXPAND
 EXPAND_HORIZ = EVAS_HINT_EXPAND, 0.0
 FILL_BOTH = EVAS_HINT_FILL, EVAS_HINT_FILL

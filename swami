@@ -105,6 +105,8 @@ class MainWin(StandardWindow):
                 if not inSearch:
                     #self.modules[m].button.hide()
                     self.modules[m].button.disabled = True
+                else:
+                    self.modules[m].button.disabled = False
         else:
             for m in self.modules:
                 #self.modules[m].button.show()
