@@ -17,9 +17,9 @@ A control panel written in Python and Elementary for the Moksha Desktop
 - Keyboard layout
 - Date and Time
 - Light DM
+- startup / restart applications
 
 *Up for grabs:*
-- startup / restart applications
 - Key / mouse / edge / acpi bindings
 - User Management
 - Module Loading

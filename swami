@@ -56,6 +56,7 @@ class MainWin(StandardWindow):
         searchFrame.show()
         
         self.searchEntry = searchEntry = Entry(self, size_hint_weight = EXPAND_BOTH, size_hint_align=FILL_HORIZ)
+        searchEntry.single_line = True
         searchEntry.callback_changed_add(self.searchTextUpdated)
         searchEntry.show()
         
