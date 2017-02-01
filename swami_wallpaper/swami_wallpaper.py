@@ -146,15 +146,18 @@ class SwamiModule(Box):
         
         #edjeObj = Layout(self.previewBox, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
-        edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-        
-        filePath = item.data["filePath"]
-        edjeObj.file_set(filePath, "e/desktop/background")
-        edjeObj.show()
-        
-        self.previewBox.content_set(edjeObj)
-        self.currentPreview = edjeObj
-        self.selectedWall = filePath
+        try:
+            edjeObj = Edje(self.previewBox.evas, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+            
+            filePath = item.data["filePath"]
+            edjeObj.file_set(filePath, "e/desktop/background")
+            edjeObj.show()
+            
+            self.previewBox.content_set(edjeObj)
+            self.currentPreview = edjeObj
+            self.selectedWall = filePath
+        except:
+            pass
     
     def fileSelected(self, fs, ourPath):
         self.flip.go(ELM_FLIP_ROTATE_YZ_CENTER_AXIS)

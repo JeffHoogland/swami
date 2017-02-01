@@ -144,7 +144,9 @@ class SwamiModule(Box):
         try:
             edjeObj.file_set("%s/%s"%(ourPath, themeFile), "moksha/preview")
         except:
-            edjeObj.file_set("%s/%s"%(ourPath, themeFile), "e/desktop/background")
+            #For some themes the preview escapes the bounds and messes things up
+            #edjeObj.file_set("%s/%s"%(ourPath, themeFile), "e/desktop/background")
+            pass
         
         edjeObj.show()
         
