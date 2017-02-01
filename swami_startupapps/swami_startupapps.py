@@ -1,7 +1,7 @@
 #Moksha startup applications module for the Swami Control Panel
 
 import os
-import gtk
+from gtk import icon_theme_get_default
 
 from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
 from efl import elementary
@@ -20,7 +20,7 @@ ALIGN_CENTER = 0.5, 0.5
 
 UserHome = os.path.expanduser("~")
 
-IconTheme = gtk.icon_theme_get_default()
+IconTheme = icon_theme_get_default()
 
 ApplicationPaths = [ "/usr/share/applications/",
                 "%s/.local/share/applications/"%UserHome]
