@@ -45,12 +45,26 @@ class SwamiModule(Box):
         self.mainBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         self.mainBox.show()
         
-        self.config = {}
+        self.config = {"sections":[]}
         
         with open(LightDMConf) as f:
+            currentSection = None
             for line in f:
                 #Sections start with [ - such as [SeatDefaults]
-                if line[0] not in [ "[", "\n"]:
+                if line[0] == "[":
+                    self.config["sections"].append(line)
+                    currentSection = line.rstrip()
+                    s = Frame(self, size_hint_weight=EXPAND_HORIZ, size_hint_align=FILL_HORIZ)
+                    s.text = currentSection[1:-1]
+                    s.show()
+                    
+                    sectionBox = Box(self, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+                    sectionBox.show()
+                    
+                    s.content = sectionBox
+                    
+                    self.mainBox.pack_end(s)
+                elif line[0] not in [ "[", "\n"]:
                     setting, value = line.replace("\n", "").split("=")
                     
                     e = Entry(self)
@@ -63,9 +77,9 @@ class SwamiModule(Box):
                     f.content = e
                     f.show()
                     
-                    self.mainBox.pack_end(f)
+                    sectionBox.pack_end(f)
                     
-                    self.config[setting] = f
+                    self.config[setting] = [f, currentSection]
         
         buttonBox = Box(self, size_hint_weight = EXPAND_HORIZ, size_hint_align = FILL_BOTH)
         buttonBox.horizontal = True
@@ -84,10 +98,14 @@ class SwamiModule(Box):
         self.pack_end(buttonBox)
     
     def savePressed(self, btn):
-        dataList = ["[SeatDefaults]\n"]
-        for s in self.config:
-            f = self.config[s]
-            dataList.append("%s=%s\n"%(f.text, f.content_get().text))
+        dataList = []
+        for section in self.config["sections"]:
+            dataList.append("%s"%section)
+            for s in self.config:
+                if s != "sections":
+                    if self.config[s][1].rstrip() == section.rstrip():
+                        f = self.config[s][0]
+                        dataList.append("%s=%s\n"%(f.text, f.content_get().text))
         
         with open("/tmp/lightdm.conf", 'w') as f:
             for item in dataList:
