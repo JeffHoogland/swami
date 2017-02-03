@@ -50,7 +50,7 @@ class SwamiModule(Box):
         with open(LightDMConf) as f:
             for line in f:
                 #Sections start with [ - such as [SeatDefaults]
-                if line[0] not in [ "[", "\n"]::
+                if line[0] not in [ "[", "\n"]:
                     setting, value = line.replace("\n", "").split("=")
                     
                     e = Entry(self)
