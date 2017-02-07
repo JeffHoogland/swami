@@ -4,6 +4,8 @@ import os
 import webbrowser
 import shutil
 import neet
+#maybe integreate this fully into neet at some point
+import ecfg
 import time
 import dbus
 import shutil
@@ -201,7 +203,12 @@ class SwamiModule(Box):
         eCFG.importFile("%s/.e/e/config/%s/e.cfg"%(UserHome, eProfile))
         ewallData = eCFG.readValue((("value", "desktop_default_background"),))
         
-        ewallData.data = self.selectedWall
+        #If ewallData returns false, that means key is not present in CFG and needs to be created
+        if not ewallData:
+            eCFG.newValue("desktop_default_background", "string", self.selectedWall)
+            print("Adding new key")
+        else:
+            ewallData.data = self.selectedWall
         #print ewallData
         eCFG.saveData()
         

@@ -248,7 +248,11 @@ class SwamiModule(Box):
         
         themeName = edje.file_data_get(self.selectedTheme, "elm-theme")
         
-        themeData.data = "%s:MokshaRadiance:default"%themeName
+        #If the Moksha theme doesn't have a defined matching elm theme, assume they are the same
+        if not themeName:
+            themeName = os.path.basename(self.selectedTheme)[:-4]
+        
+        themeData.data = "%s:default"%themeName
         
         elmCFG.saveData()
         
