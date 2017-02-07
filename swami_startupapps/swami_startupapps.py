@@ -1,7 +1,6 @@
 #Moksha startup applications module for the Swami Control Panel
 
 import os
-from gtk import icon_theme_get_default
 
 from efl.evas import EVAS_HINT_EXPAND, EVAS_HINT_FILL
 from efl import elementary
@@ -24,8 +23,6 @@ FILL_HORIZ = EVAS_HINT_FILL, 0.5
 ALIGN_CENTER = 0.5, 0.5
 
 UserHome = os.path.expanduser("~")
-
-IconTheme = icon_theme_get_default()
 
 StartupApplicationsFile = "%s/.e/e/applications/startup/.order"%UserHome
 
@@ -102,24 +99,18 @@ class SwamiModule(Box):
                         name = line[5:][:-1]
                     
                     if line[:5] == "Icon=":
-                        icon = line[5:]
-                    
+                        icon = line[5:].strip()
                 
-                if icon:
-                    iconInfo = IconTheme.lookup_icon(icon.strip(), 48, 0)
-
-                    if iconInfo:
-                        iconObj = Image(self, file=iconInfo.get_filename(), size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-                        iconInfo = iconInfo.get_filename()
-                    else:
-                        iconObj = Icon(self, standard="preferences-system", size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
-                else:
+                try:
+                    iconObj = Icon(self, standard=icon, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+                except:
                     iconObj = Icon(self, standard="preferences-system", size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+                    icon = None
                 
                 if fileName in startupApplications:
-                    startupToAdd.append([name, iconObj, fileName, iconInfo])
+                    startupToAdd.append([name, iconObj, fileName, icon])
                 else:
-                    applicationsToAdd.append([name, iconObj, fileName, iconInfo])
+                    applicationsToAdd.append([name, iconObj, fileName, icon])
         
         startupToAdd.sort()
         applicationsToAdd.sort()
@@ -220,13 +211,14 @@ class SwamiModule(Box):
         itm.delete()
         
         if dataIcon:
-            iconObj = Image(self, file=dataIcon, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+            iconObj = Icon(self, standard=dataIcon, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         else:
             iconObj = Icon(self, standard="preferences-system", size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
         ourItem = self.applicationsList.item_append(text, iconObj)
         ourItem.data["file"] = dataFile
         ourItem.data["icon"] = dataIcon
+        self.applicationsList.ourList.go()
     
     def startupAppAdd(self, lst, itm):
         text = itm.text
@@ -235,7 +227,7 @@ class SwamiModule(Box):
         itm.delete()
         
         if dataIcon:
-            iconObj = Image(self, file=dataIcon, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
+            iconObj = Icon(self, standard=dataIcon, size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         else:
             iconObj = Icon(self, standard="preferences-system", size_hint_weight=EXPAND_BOTH, size_hint_align=FILL_BOTH)
         
