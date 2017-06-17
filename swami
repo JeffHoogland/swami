@@ -43,7 +43,7 @@ class MainWin(StandardWindow):
         icon = Icon(self, size_hint_weight = EXPAND_BOTH, size_hint_align = FILL_BOTH)
         icon.standard_set('preferences-system')
         icon.show()
-        self.icon_object_set(icon.object_get())
+        self.icon_object_set(icon)
         
         self.modules = {}
         self.launchArgs = {}
